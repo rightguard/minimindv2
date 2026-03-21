@@ -80,7 +80,7 @@ if __name__ == "__main__":
     # --- 阶段 1: Pretrain ---
     if RUN_PRETRAIN:
         run_step("1/5 Pretrain 预训练", [
-            "train_pretrain.py",
+            "trainer/train_pretrain.py",
             "--data_path", DATA_PRETRAIN,
             "--save_dir", OUT_DIR,
             "--weight_dir", WEIGHT_DIR,
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     # --- 阶段 2: Full SFT ---
     if RUN_SFT:
         run_step("2/5 Full SFT 全量微调", [
-            "train_full_sft.py",
+            "trainer/train_full_sft.py",
             "--data_path", DATA_SFT,
             "--from_weight", "pretrain",
             "--save_dir", OUT_DIR,
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # --- 阶段 3: LoRA ---
     if RUN_LORA:
         run_step("3/5 LoRA 专项微调", [
-            "train_lora.py",
+            "trainer/train_lora.py",
             "--data_path", DATA_LORA,
             "--from_weight", "full_sft",
             "--save_dir", LORA_WEIGHT_DIR,
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # --- 阶段 4: DPO ---
     if RUN_DPO:
         run_step("4/5 DPO 偏好对齐", [
-            "train_dpo.py",
+            "trainer/train_dpo.py",
             "--data_path", DATA_DPO,
             "--from_weight", "full_sft",
             "--save_dir", OUT_DIR,
@@ -134,14 +134,14 @@ if __name__ == "__main__":
     # --- 阶段 5: GRPO ---
     if RUN_GRPO:
         run_step("5/5 GRPO 强化学习", [
-            "train_grpo.py",
+            "trainer/train_grpo.py",
             "--data_path", DATA_GRPO,
             "--reward_model_path", REWARD_MODEL_PATH,  # 使用自动下载的模型 ID
             "--reasoning", 1,
             "--save_dir", OUT_DIR,
             "--save_weight", "grpo",
             "--epochs", 1,
-            "--batch_size", 1, 
+            "--batch_size", 1,
             "--learning_rate", 1e-6
         ])
         copy_final_weights("grpo")
