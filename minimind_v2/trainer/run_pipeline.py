@@ -85,7 +85,7 @@ if __name__ == "__main__":
             "--save_dir", OUT_DIR,
             "--weight_dir", WEIGHT_DIR,
             "--save_weight", "pretrain",
-            "--epochs", 5,
+            "--epochs", 2,
             "--batch_size", 64,
             "--learning_rate", 1e-3
         ])
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             "--from_weight", "pretrain",
             "--save_dir", OUT_DIR,
             "--save_weight", "full_sft",
-            "--epochs", 5,
+            "--epochs", 2,
             "--batch_size", 64,
             "--learning_rate", 1e-4
         ])
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             "--from_weight", "full_sft",
             "--save_dir", LORA_WEIGHT_DIR,
             "--lora_name", "lora_medical",
-            "--epochs", 5,
+            "--epochs", 2,
             "--batch_size", 64,
             "--learning_rate", 1e-4
         ])
@@ -125,7 +125,7 @@ if __name__ == "__main__":
             "--from_weight", "full_sft",
             "--save_dir", OUT_DIR,
             "--save_weight", "dpo",
-            "--epochs", 5,
+            "--epochs", 2,
             "--batch_size", 64,
             "--learning_rate", 5e-6
         ])
