@@ -148,8 +148,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--epochs", type=int, default=1, help="训练轮数（建议1轮zero或2-6轮充分训练）"
     )
-    parser.add_argument("--batch_size", type=int, default=32, help="batch size")
-    parser.add_argument("--learning_rate", type=float, default=5e-4, help="初始学习率")
+    parser.add_argument("--batch_size", type=int, default=128, help="batch size")
+    parser.add_argument("--learning_rate", type=float, default=1e-3, help="初始学习率")
 
     # ========== 硬件和性能参数 ==========
     parser.add_argument(
@@ -159,21 +159,21 @@ if __name__ == "__main__":
         help="训练设备",
     )
     parser.add_argument("--dtype", type=str, default="bfloat16", help="混合精度类型")
-    parser.add_argument("--num_workers", type=int, default=1, help="数据加载线程数")
+    parser.add_argument("--num_workers", type=int, default=8, help="数据加载线程数")
 
     # ========== 训练策略参数 ==========
     parser.add_argument(
-        "--accumulation_steps", type=int, default=8, help="梯度累积步数"
+        "--accumulation_steps", type=int, default=2, help="梯度累积步数"
     )
     parser.add_argument("--grad_clip", type=float, default=1.0, help="梯度裁剪阈值")
-    parser.add_argument("--log_interval", type=int, default=100, help="日志打印间隔")
-    parser.add_argument("--save_interval", type=int, default=100, help="模型保存间隔")
+    parser.add_argument("--log_interval", type=int, default=500, help="日志打印间隔")
+    parser.add_argument("--save_interval", type=int, default=500, help="模型保存间隔")
 
     # ========== 模型架构参数 ==========
     parser.add_argument("--hidden_size", default=512, type=int, help="隐藏层维度")
     parser.add_argument("--num_hidden_layers", default=8, type=int, help="隐藏层数量")
     parser.add_argument(
-        "--max_seq_len", default=512, type=int, help="训练的最大截断长度"
+        "--max_seq_len", default=1024, type=int, help="训练的最大截断长度"
     )
     parser.add_argument(
         "--use_moe",
