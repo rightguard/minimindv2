@@ -85,9 +85,9 @@ if __name__ == "__main__":
             "--save_dir", OUT_DIR,
             "--weight_dir", WEIGHT_DIR,
             "--save_weight", "pretrain",
-            "--epochs", 1,
-            "--batch_size", 16,
-            "--learning_rate", 5e-4
+            "--epochs", 5,
+            "--batch_size", 128,
+            "--learning_rate", 1e-3
         ])
 
     # --- 阶段 2: Full SFT ---
@@ -98,9 +98,9 @@ if __name__ == "__main__":
             "--from_weight", "pretrain",
             "--save_dir", OUT_DIR,
             "--save_weight", "full_sft",
-            "--epochs", 2,
-            "--batch_size", 16,
-            "--learning_rate", 1e-5
+            "--epochs", 5,
+            "--batch_size", 128,
+            "--learning_rate", 1e-4
         ])
         copy_final_weights("full_sft")
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
             "--save_dir", LORA_WEIGHT_DIR,
             "--lora_name", "lora_medical",
             "--epochs", 5,
-            "--batch_size", 32,
+            "--batch_size", 128,
             "--learning_rate", 1e-4
         ])
 
@@ -125,8 +125,8 @@ if __name__ == "__main__":
             "--from_weight", "full_sft",
             "--save_dir", OUT_DIR,
             "--save_weight", "dpo",
-            "--epochs", 1,
-            "--batch_size", 4,
+            "--epochs", 5,
+            "--batch_size", 128,
             "--learning_rate", 5e-6
         ])
         copy_final_weights("dpo")
