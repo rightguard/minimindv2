@@ -86,7 +86,7 @@ if __name__ == "__main__":
             "--weight_dir", WEIGHT_DIR,
             "--save_weight", "pretrain",
             "--epochs", 1,
-            "--batch_size", 16,
+            "--batch_size", 32,
             "--learning_rate", 5e-4
         ])
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
             "--save_dir", OUT_DIR,
             "--save_weight", "full_sft",
             "--epochs", 2,
-            "--batch_size", 16,
+            "--batch_size", 32,
             "--learning_rate", 1e-5
         ])
         copy_final_weights("full_sft")
@@ -141,7 +141,7 @@ if __name__ == "__main__":
             "--save_dir", OUT_DIR,
             "--save_weight", "grpo",
             "--epochs", 1,
-            "--batch_size", 1,
+            "--batch_size", 2,
             "--learning_rate", 1e-6
         ])
         copy_final_weights("grpo")
