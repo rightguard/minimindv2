@@ -35,10 +35,11 @@ DATA_ROOT = r"f:\llm\minimindv2da"
 TOKENIZER_PATH = os.path.join(project_root, "model")
 
 # 数据集路径
-DATA_PRETRAIN = os.path.join(DATA_ROOT, "pretrain_hq.jsonl")
-DATA_SFT      = os.path.join(DATA_ROOT, "sft_mini_512.jsonl")
-DATA_LORA     = os.path.join(DATA_ROOT, "lora_medical.jsonl")
-DATA_DPO      = os.path.join(DATA_ROOT, "dpo.jsonl")
+DATA_PRETRAIN = "/kaggle/input/datasets/rightguard/minimind-v2data/pretrain_hq.jsonl"
+DATA_SFT      = "/kaggle/input/datasets/rightguard/minimind-v2data/sft_mini_512.jsonl"
+DATA_LORA     = "/kaggle/input/datasets/rightguard/minimind-v2data/lora_medical.jsonl"
+DATA_DPO      = "/kaggle/input/datasets/rightguard/minimind-v2data/dpo.jsonl"
+DATA_GRPO = None
 
 
 def green(msg):  return f"\033[92m{msg}\033[0m"
