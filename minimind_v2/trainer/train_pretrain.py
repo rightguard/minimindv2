@@ -146,7 +146,7 @@ if __name__ == "__main__":
         "--weight_dir", type=str, default="../weight", help="最终权重保存目录"
     )
     parser.add_argument(
-        "--epochs", type=int, default=1, help="训练轮数（建议1轮zero或2-6轮充分训练）"
+        "--epochs", type=int, default=5, help="训练轮数（建议1轮zero或2-6轮充分训练）"
     )
     parser.add_argument("--batch_size", type=int, default=128, help="batch size")
     parser.add_argument("--learning_rate", type=float, default=1e-3, help="初始学习率")
