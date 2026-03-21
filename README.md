@@ -1,2 +1,2 @@
-# minimindv1
+# minimindv2
 项目来源于https://github.com/Wood-Q/MokioMind
