@@ -22,36 +22,59 @@ def apply_lora(model, rank=8):
     # 确保后续新建的 LoRA 层也在同一个设备上，避免计算时报错。
     device = next(model.parameters()).device
 
-    # 遍历模型中所有的子模块。
+    # 使用显式栈代替递归，避免 named_modules() 的递归深度问题
     # 筛选条件： 必须是线性层 (nn.Linear)。
     # 注意：移除了方阵限制，使 LoRA 同时作用于 attention 的 q/k/v/o 所有投影层，
     # 这是在 LLM 上应用 LoRA 的标准做法（原代码只作用于 q_proj/o_proj，漏掉了 k_proj/v_proj）。
-    for name, module in model.named_modules():
+
+    # 手动使用 _modules 字典遍历，避免 named_modules() 的递归问题
+    modules_to_process = [('', model)]
+    processed = set()
+
+    while modules_to_process:
+        name, module = modules_to_process.pop()
+        if id(module) in processed:
+            continue
+        processed.add(id(module))
+
         if isinstance(module, nn.Linear):
             lora = LoRA(module.weight.shape[0], module.weight.shape[1], rank=rank).to(device)
-            # setattr(object, name, value) 是 Python 的内置函数，用于给对象设置属性。
-
-            # 参数含义：
-            # object: 要设置属性的对象。
-            # name: 属性名的字符串。
-            # value: 要赋予该属性的值。
-
-            # 在代码中的作用：
-            # Python
-            # setattr(module, "lora", lora)
-            # 这行代码相当于执行了 module.lora = lora。
-
-            # 为什么要用 setattr？
-            # 因为 module 是在循环中动态获取的，虽然这里可以直接写点号，但在处理动态变量名或确保兼容性时，setattr 更加显式和灵活。
-            # 它将新创建的 LoRA 层挂载到了当前的 nn.Linear 模块上，使其成为该模块的一个子属性。
             setattr(module, "lora", lora)
             original_forward = module.forward
 
-            # 显式绑定
             def forward_with_lora(x, layer1=original_forward, layer2=lora):
                 return layer1(x) + layer2(x)
 
             module.forward = forward_with_lora
+
+        # 手动遍历 _modules 字典，避免递归
+        for child_name, child_module in module._modules.items():
+            if child_module is None:
+                continue
+            if id(child_module) in processed:
+                continue
+            full_name = f"{name}.{child_name}" if name else child_name
+            modules_to_process.append((full_name, child_module))
+
+def _iter_modules(model):
+    """迭代遍历模型模块，避免递归深度问题"""
+    # 使用显式栈遍历 _modules 字典，避免 named_modules() 的递归问题
+    modules_to_process = [('', model)]
+    processed = set()
+    while modules_to_process:
+        name, module = modules_to_process.pop()
+        if id(module) in processed:
+            continue
+        processed.add(id(module))
+        yield name, module
+        # 手动遍历 _modules 字典
+        for child_name, child_module in module._modules.items():
+            if child_module is None:
+                continue
+            if id(child_module) in processed:
+                continue
+            full_name = f"{name}.{child_name}" if name else child_name
+            modules_to_process.append((full_name, child_module))
 
 def load_lora(model, path):
     raw_model = getattr(model, "_orig_mod", model)
@@ -60,7 +83,7 @@ def load_lora(model, path):
     state_dict = torch.load(path, map_location=device)
     state_dict = {(k[7:] if k.startswith("module.") else k): v for k, v in state_dict.items()}
 
-    for name, module in raw_model.named_modules():
+    for name, module in _iter_modules(raw_model):
         if hasattr(module, "lora"):
             lora_state = {k.replace(f"{name}.lora.", ""): v for k, v in state_dict.items() if f"{name}.lora." in k}
             module.lora.load_state_dict(lora_state)
@@ -69,7 +92,7 @@ def save_lora(model, path):
     raw_model = getattr(model, "_orig_mod", model)
     raw_model = getattr(raw_model, "module", raw_model)
     state_dict = {}
-    for name, module in raw_model.named_modules():
+    for name, module in _iter_modules(raw_model):
         if hasattr(module, "lora"):
             clean_name = name[7:] if name.startswith("module.") else name
             lora_state = {f"{clean_name}.lora.{k}": v for k, v in module.lora.state_dict().items()}
