@@ -30,8 +30,13 @@ def apply_lora(model, rank=8):
     # 手动使用 _modules 字典遍历，避免 named_modules() 的递归问题
     modules_to_process = [('', model)]
     processed = set()
+    max_iterations = 100000  # 安全限制
+    iteration_count = 0
 
     while modules_to_process:
+        iteration_count += 1
+        if iteration_count > max_iterations:
+            raise RuntimeError(f"Module iteration exceeded {max_iterations} iterations. Possible cycle detected.")
         name, module = modules_to_process.pop()
         if id(module) in processed:
             continue
@@ -48,6 +53,8 @@ def apply_lora(model, rank=8):
             module.forward = forward_with_lora
 
         # 手动遍历 _modules 字典，避免递归
+        if not hasattr(module, '_modules'):
+            continue
         for child_name, child_module in module._modules.items():
             if child_module is None:
                 continue
@@ -61,13 +68,20 @@ def _iter_modules(model):
     # 使用显式栈遍历 _modules 字典，避免 named_modules() 的递归问题
     modules_to_process = [('', model)]
     processed = set()
+    max_iterations = 100000  # 安全限制，防止意外死循环
+    iteration_count = 0
     while modules_to_process:
+        iteration_count += 1
+        if iteration_count > max_iterations:
+            raise RuntimeError(f"Module iteration exceeded {max_iterations} iterations. Possible cycle detected.")
         name, module = modules_to_process.pop()
         if id(module) in processed:
             continue
         processed.add(id(module))
         yield name, module
         # 手动遍历 _modules 字典
+        if not hasattr(module, '_modules'):
+            continue
         for child_name, child_module in module._modules.items():
             if child_module is None:
                 continue
