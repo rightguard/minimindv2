@@ -156,9 +156,14 @@ def init_model(
         moe_suffix = (
             "_moe" if hasattr(lm_config, "use_moe") and lm_config.use_moe else ""
         )
-        weight_path = (
-            f"{save_dir}/{from_weight}_{lm_config.hidden_size}{moe_suffix}.pth"
-        )
+        # 支持完整路径或名称
+        # 如果已经是 .pth 文件或绝对路径，直接使用
+        if from_weight.endswith(".pth") or os.path.isabs(from_weight) or from_weight.startswith("~"):
+            weight_path = os.path.expanduser(from_weight)
+        else:
+            weight_path = (
+                f"{save_dir}/{from_weight}_{lm_config.hidden_size}{moe_suffix}.pth"
+            )
 
         weights = torch.load(weight_path, map_location=device)
         # 清理 DDP 保存时产生的 "module." 前缀，兼容直接加载到非 DDP 模型
