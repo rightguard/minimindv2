@@ -18,29 +18,16 @@ class LoRA(nn.Module):
         return self.B(self.A(x))
 
 def apply_lora(model, rank=8):
-    # 获取模型当前所在的设备（CPU 或 GPU）
-    # 确保后续新建的 LoRA 层也在同一个设备上，避免计算时报错。
     device = next(model.parameters()).device
 
     # 使用显式栈代替递归，避免 named_modules() 的递归深度问题
-    # 筛选条件： 必须是线性层 (nn.Linear)。
-    # 注意：移除了方阵限制，使 LoRA 同时作用于 attention 的 q/k/v/o 所有投影层，
-    # 这是在 LLM 上应用 LoRA 的标准做法（原代码只作用于 q_proj/o_proj，漏掉了 k_proj/v_proj）。
+    # 同时用 pending 集合去重，防止同一模块被多次加入队列
+    pending = set()
+    pending.add(id(model))
 
-    # 手动使用 _modules 字典遍历，避免 named_modules() 的递归问题
-    modules_to_process = [('', model)]
-    processed = set()
-    max_iterations = 100000  # 安全限制
-    iteration_count = 0
-
-    while modules_to_process:
-        iteration_count += 1
-        if iteration_count > max_iterations:
-            raise RuntimeError(f"Module iteration exceeded {max_iterations} iterations. Possible cycle detected.")
-        name, module = modules_to_process.pop()
-        if id(module) in processed:
-            continue
-        processed.add(id(module))
+    stack = [model]
+    while stack:
+        module = stack.pop()
 
         if isinstance(module, nn.Linear):
             lora = LoRA(module.weight.shape[0], module.weight.shape[1], rank=rank).to(device)
@@ -52,16 +39,11 @@ def apply_lora(model, rank=8):
 
             module.forward = forward_with_lora
 
-        # 手动遍历 _modules 字典，避免递归
-        if not hasattr(module, '_modules'):
-            continue
-        for child_name, child_module in module._modules.items():
-            if child_module is None:
-                continue
-            if id(child_module) in processed:
-                continue
-            full_name = f"{name}.{child_name}" if name else child_name
-            modules_to_process.append((full_name, child_module))
+        for child in module.children():
+            child_id = id(child)
+            if child_id not in pending:
+                pending.add(child_id)
+                stack.append(child)
 
 def _iter_modules(model):
     """迭代遍历模型模块，避免递归深度问题"""
