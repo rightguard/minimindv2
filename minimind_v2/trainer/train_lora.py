@@ -230,8 +230,8 @@ if __name__ == "__main__":
     # epochs: 训练的总轮数，控制模型训练的完整程度
     # batch_size: 每个批次的样本数量，影响显存使用和训练稳定性
     # learning_rate: 初始学习率，控制参数更新的步长
-    parser.add_argument("--epochs", type=int, default=50, help="训练轮数")
-    parser.add_argument("--batch_size", type=int, default=32, help="batch size")
+    parser.add_argument("--epochs", type=int, default=1, help="训练轮数")
+    parser.add_argument("--batch_size", type=int, default=8, help="batch size")
     parser.add_argument("--learning_rate", type=float, default=1e-4, help="初始学习率")
 
     # 📚 设备和精度配置
