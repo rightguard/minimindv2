@@ -115,7 +115,7 @@ if __name__ == "__main__":
             "--save_dir", LORA_WEIGHT_DIR,
             "--lora_name", "lora_medical",
             "--epochs", 1,
-            "--batch_size", 16,
+            "--batch_size", 8,
             "--learning_rate", 1e-4
         ])
 
@@ -128,7 +128,7 @@ if __name__ == "__main__":
             "--save_dir", OUT_DIR,
             "--save_weight", "dpo",
             "--epochs", 1,
-            "--batch_size", 16,
+            "--batch_size", 4,
             "--learning_rate", 5e-6
         ])
         copy_final_weights("dpo")
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             "--save_dir", OUT_DIR,
             "--save_weight", "grpo",
             "--epochs", 1,
-            "--batch_size", 16,
+            "--batch_size", 1,
             "--learning_rate", 1e-6
         ])
         copy_final_weights("grpo")
